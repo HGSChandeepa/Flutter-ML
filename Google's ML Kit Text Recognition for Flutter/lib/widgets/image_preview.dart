@@ -15,7 +15,7 @@ class ImagePreview extends StatelessWidget {
       width: double.infinity,
       height: 300,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 255, 245, 222),
         borderRadius: BorderRadius.circular(10),
       ),
       child: imagePath == null
@@ -23,7 +23,7 @@ class ImagePreview extends StatelessWidget {
               child: Icon(
                 Icons.image,
                 size: 300,
-                color: Color.fromARGB(59, 158, 158, 158),
+                color: Colors.orangeAccent,
               ),
             )
           : Image.file(

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:langvify/screens/image_preview.dart';
+import 'package:langvify/widgets/image_preview.dart';
+import 'package:langvify/services/store_conversions_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -58,6 +61,29 @@ class _HomeScreenState extends State<HomeScreen> {
           await textRecognizer.processImage(inputImage);
 
       recognizedText = "";
+
+      // store the conversion data in the firestore
+      try {
+        if (recognisedText.blocks.isNotEmpty) {
+          //convert the recognizedText to string
+
+          final String recognizedString = recognisedText.blocks
+              .map((block) => block.lines.map((line) => line.text).join("\n"))
+              .join("\n\n");
+          StoreConversionsFirestore().storeConversionData(
+            conversionData: recognizedString,
+            convertedDate: DateTime.now(),
+            imageFile: File(pickedImagePath!),
+          );
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: const Text('Text recognized successfully'),
+          ),
+        );
+      } catch (e) {
+        print(e.toString());
+      }
 
       print(recognisedText.blocks[0].lines[4].text);
 
@@ -149,7 +175,10 @@ class _HomeScreenState extends State<HomeScreen> {
             if (!isImagePicked) // Show "Pick Image" button if image is not picked
               ElevatedButton(
                 onPressed: isRecognizing ? null : _chooseImageSourceModal,
-                child: const Text('Pick an image'),
+                child: const Text(
+                  'Pick an image',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             if (isImagePicked) // Show "Process Image" button if image is picked
               ElevatedButton(
@@ -157,7 +186,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Process Image'),
+                    const Text(
+                      'Process Image',
+                      style: TextStyle(color: Colors.black),
+                    ),
                     if (isRecognizing) ...[
                       const SizedBox(width: 20),
                       const SizedBox(
